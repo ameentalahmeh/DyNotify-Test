@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from PIL import Image
+from skimage.metrics import structural_similarity as ssim
 import numpy
 import cv2
 import requests
@@ -49,9 +50,7 @@ def compare_images(firstImgUrl: str, secondImgUrl: str, apiKey: str = Query(...,
         image2 = numpy.array(img2)
 
         # --- measure similarity percentage ---
-        percentage = cv2.matchTemplate(
-            image1, image2, cv2.TM_CCORR_NORMED)[0][0] * 100
-        similarityPercentage = round(percentage, 2)
+        similarityPercentage = round(ssim(image1, image2), 2) * 100
         return {"Similarity Percentage": str(similarityPercentage) + "%"}
 
     except Exception as err:
